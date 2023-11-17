@@ -40,12 +40,12 @@ func copyBinaries(srcDir string, targetDirs []string) (sets.String, error) {
 		srcFilepath := filepath.Join(srcDir, filename)
 
 		for _, targetDir := range targetDirs {
-			if err := file.IsDirWriteable(targetDir); err != nil {
+			err := file.AtomicCopy(srcFilepath, targetDir, filename)
+			if err == os.ErrPermission {
 				installLog.Infof("Directory %s is not writable, skipping.", targetDir)
 				continue
 			}
 
-			err := file.AtomicCopy(srcFilepath, targetDir, filename)
 			if err != nil {
 				return copiedFilenames, err
 			}
